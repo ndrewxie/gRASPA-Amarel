@@ -5,8 +5,6 @@
 #include <string>
 #include <iomanip>
 
-#include <execution>
-
 #include "read_data.h"
 //###PATCH_LCLIN_INCLUDE_HEADER###//
 
