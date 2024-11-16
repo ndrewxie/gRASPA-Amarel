@@ -575,7 +575,7 @@ double CPU_EwaldDifference(Boxsize& Box, Atoms& New, Atoms& Old, ForceField& FF,
       PBC(posvec, Host_Box.Cell, Host_Box.InverseCell, Host_Box.Cubic);
       //double rr_dot = posvec[0]*posvec[0] + posvec[1]*posvec[1] + posvec[2]*posvec[2];
       double rr_dot = dot(posvec, posvec);
-      double r = std::sqrt(rr_dot);
+      double r = sqrt(rr_dot);
       SelfEOld      += Box.Prefactor * factorA * factorB * std::erf(alpha * r) / r;
     }
   }
@@ -595,7 +595,7 @@ double CPU_EwaldDifference(Boxsize& Box, Atoms& New, Atoms& Old, ForceField& FF,
       double3 posvec = posA - posB;
       PBC(posvec, Host_Box.Cell, Host_Box.InverseCell, Host_Box.Cubic);
       double rr_dot = dot(posvec, posvec);
-      double r = std::sqrt(rr_dot);
+      double r = sqrt(rr_dot);
       SelfENew      += Box.Prefactor * factorA * factorB * std::erf(alpha * r) / r;
     }
   }
@@ -604,7 +604,7 @@ double CPU_EwaldDifference(Boxsize& Box, Atoms& New, Atoms& Old, ForceField& FF,
   //////////////////////////
   // Subtract self-energy //
   //////////////////////////
-  double prefactor_self = Box.Prefactor * alpha / std::sqrt(M_PI);
+  double prefactor_self = Box.Prefactor * alpha / sqrt(M_PI);
   double SelfExcludeOld = 0.0; double SelfExcludeNew = 0.0;
   //OLD//
   for(size_t i = 0; i != Oldsize; ++i)
@@ -1056,7 +1056,9 @@ __global__ void Energy_difference_LambdaChange(Boxsize Box, Atoms* System, Atoms
   BlockEnergy[blockIdx.x] = 0.0; BlockEnergy[blockIdx.x + HG_Nblock + GG_Nblock] = 0.0;
   //BlockdUdlambda[blockIdx.x] = 0.0;
 
-  __shared__ bool Blockflag = false;
+  __shared__ bool Blockflag;
+  if (threadIdx.x == 0) { Blockflag = false; }
+  __syncthreads();
 
   const size_t NTotalComp = NComps.x; //Zhao's note: need to change here for multicomponent (Nguest comp > 1)
   const size_t NHostComp  = NComps.y;
@@ -1497,7 +1499,7 @@ __global__ void TotalVDWRealCoulomb(Boxsize Box, Atoms* System, ForceField FF, d
         size_t InteractionIdx = THREADIdx * InteractionPerThread + i;
         if(ConsiderIntra) //All Framework atom vs. All Framework atom//
         {
-          AtomA = NFrameworkAtoms - 2 - std::floor(std::sqrt(-8*(int) InteractionIdx + 4*NFrameworkAtoms*(NFrameworkAtoms-1)-7)/2.0 - 0.5);
+          AtomA = NFrameworkAtoms - 2 - floor(sqrt((double)(-8*(int) InteractionIdx + 4*NFrameworkAtoms*(NFrameworkAtoms-1)-7))/2.0 - 0.5);
           AtomB = InteractionIdx + AtomA + 1 - NFrameworkAtoms*(NFrameworkAtoms-1)/2 + (NFrameworkAtoms-AtomA)*((NFrameworkAtoms-AtomA)-1)/2;
         determine_comp_and_Atomindex_from_thread(System, AtomA, compA, 0, NComponents.y);
         determine_comp_and_Atomindex_from_thread(System, AtomB, compB, 0, NComponents.y);
@@ -1516,7 +1518,7 @@ __global__ void TotalVDWRealCoulomb(Boxsize Box, Atoms* System, ForceField FF, d
           {
             size_t NExtraFrameworkAtoms = NFrameworkAtoms - System[0].size;
             size_t InteractionIdx = THREADIdx * InteractionPerThread + i - NFrameworkZero_ExtraFramework;
-            AtomA = NExtraFrameworkAtoms - 2 - std::floor(std::sqrt(-8*(int) InteractionIdx + 4*NExtraFrameworkAtoms*(NExtraFrameworkAtoms-1)-7)/2.0 - 0.5);
+            AtomA = NExtraFrameworkAtoms - 2 - floor(sqrt((double)(-8*(int) InteractionIdx + 4*NExtraFrameworkAtoms*(NExtraFrameworkAtoms-1)-7))/2.0 - 0.5);
             AtomB = InteractionIdx + AtomA + 1 - NExtraFrameworkAtoms*(NExtraFrameworkAtoms-1)/2 + (NExtraFrameworkAtoms-AtomA)*((NExtraFrameworkAtoms-AtomA)-1)/2;
             determine_comp_and_Atomindex_from_thread(System, AtomA, compA, 1, NComponents.y);
             determine_comp_and_Atomindex_from_thread(System, AtomB, compB, 1, NComponents.y);
@@ -1537,7 +1539,7 @@ __global__ void TotalVDWRealCoulomb(Boxsize Box, Atoms* System, ForceField FF, d
       else //Guest-Guest//
       {
         size_t InteractionIdx = (THREADIdx - HH_Threads - HG_Threads) * InteractionPerThread + i;
-        AtomA = NAdsorbateAtoms - 2 - std::floor(std::sqrt(-8*(int) InteractionIdx + 4*NAdsorbateAtoms*(NAdsorbateAtoms-1)-7)/2.0 - 0.5);
+        AtomA = NAdsorbateAtoms - 2 - floor(sqrt((double)(-8*(int) InteractionIdx + 4*NAdsorbateAtoms*(NAdsorbateAtoms-1)-7))/2.0 - 0.5);
         AtomB = InteractionIdx + AtomA + 1 - NAdsorbateAtoms*(NAdsorbateAtoms-1)/2 + (NAdsorbateAtoms-AtomA)*((NAdsorbateAtoms-AtomA)-1)/2;
 
         determine_comp_and_Atomindex_from_thread(System, AtomA, compA, NComponents.y, NComponents.x);

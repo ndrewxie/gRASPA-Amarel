@@ -1039,7 +1039,7 @@ __global__ void TotalFourierEwald(Atoms* d_a, Boxsize Box, double* BlockSum, Com
 
 __global__ void TotalFourierEwald_CalculateEnergy(Boxsize Box, Complex* FrameworkEik, Complex* Eik, double* BlockSum, size_t kpoints, size_t kpoint_per_thread, size_t Nblocks)
 {
-  __shared__ double sdata[];
+  extern __shared__ double sdata[];
   size_t threadID = blockIdx.x * blockDim.x + threadIdx.x;
   double Framework_E = 0.0;
   double Adsorbate_E = 0.0;
@@ -1155,7 +1155,7 @@ __global__ void Framework_ComponentZero_Calculate_Intra_Self_Exclusion(Boxsize B
   {
     size_t InteractionIdx = THREADIdx * InteractionPerThread + i;
     //Unwrap Atoms from interactions (upper triangle)//
-    size_t AtomA = NAtoms - 2 - std::floor(std::sqrt(-8*(int) InteractionIdx + 4*NAtoms*(NAtoms-1)-7)/2.0 - 0.5);
+    size_t AtomA = NAtoms - 2 - floor(sqrt((double)(-8*(int) InteractionIdx + 4*NAtoms*(NAtoms-1)-7))/2.0 - 0.5);
     size_t AtomB = InteractionIdx + AtomA + 1 - NAtoms*(NAtoms-1)/2 + (NAtoms-AtomA)*((NAtoms-AtomA)-1)/2;
 
     if(AtomA < NAtoms && AtomB < NAtoms)
