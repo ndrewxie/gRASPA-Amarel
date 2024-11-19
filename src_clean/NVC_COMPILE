@@ -1,11 +1,15 @@
 #!/bin/bash
 
+export MODULEPATH=$MODULEPATH:/projects/community/modulefiles
+module load gcc/9.2.0-gc563
+module load cuda
+
 rm nvc_main.x
 
 CXX="nvcc"
 
-NVCFLAG="-O3 -std=c++20 -Xcompiler -std=c++20 -Xcompiler -fopenmp -Xcompiler -fpermissive -x cu"
-NVLFLAG="-Xcompiler -fopenmp -std=c++20 -Xcompiler -std=c++20"
+NVCFLAG="-g -G -O3 -std=c++17 -Xcompiler -std=c++17 -Xcompiler -fopenmp -Xcompiler -fpermissive -x cu -arch=sm_52"
+NVLFLAG="-g -G -lgomp -std=c++17 -Xcompiler -std=c++17 -arch=sm_52"
 
 $CXX $NVCFLAG -dc axpy.cu && echo "Finished axpy.cu" &
 
