@@ -1,7 +1,7 @@
 # gRASPA
 gRASPA (pronounced “gee raspa”) is a GPU-accelerated Monte Carlo simulation software built for molecular adsorption in nanoporous materials, such as zeolites and metal-organic frameworks (MOFs). 
 
-This is a fork for amarel configs.
+This is a fork for amarel config.
 
 <div align="center">
   
